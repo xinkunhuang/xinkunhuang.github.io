@@ -1,0 +1,319 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Simple data analysis tool</title>
+	<script src = "https://d3js.org/d3.v4.min.js"></script>
+  </head>
+  <body>
+    <style>
+		#drop_zone {
+			width:200px;
+			height:100px;
+			display:table-cell;
+			text-align:center;
+			background:#ccc;
+			border:1px solid #000;
+			vertical-align:middle;
+			}
+		#progress_bar {
+		  margin: 5px 0;
+		  padding: 3px;
+		  border: 1px solid #000;
+		  font-size: 14px;
+		  clear: both;
+		  opacity: 0;
+		  width: 20%;
+		  -moz-transition: opacity ls Linear;
+		  -o-transition: opacity ls linear;
+		  -webkit-transition: opacity ls linear;
+		}
+		#progress_bar.loading {
+		  opacity: 2.0;
+		}
+		#progress_bar .percent {
+		  background-color: #99ccff;
+	      height: auto;
+		  width: 0;
+		}
+	</style>
+  	<div id="drop_zone" class="ui-widget-header">Drag files here</div>
+	<button onclick="abortRead();">Cancel read</button>
+	<div id="progress_bar"><div class="percent">0%</div></div>
+	<div>
+	
+	<!-- Initialize a select button -->
+	Select x: <select id="selectX"></select>
+	Select y: <select id="selectY"></select>
+	</div>
+	<div>
+	<!-- Add a radio button -->
+	X min: <input type="number" id="buttonXmin" >
+	X max: <input type="number" id="buttonXmax" >
+	Y min: <input type="number" id="buttonYmin" >
+	Y max: <input type="number" id="buttonYmax" >
+	</div>
+	<output id="list"></output>
+	<svg width="1" height="1"></svg>
+    <script>
+
+
+	var reader;
+	var progress = document.querySelector('.percent');
+	var data;
+	
+	var default_xmin;
+	var default_xmax;
+	var default_ymin;
+	var default_ymax;
+	
+	//scale variable
+	var sx;
+	var sy;
+		  
+	//x and y axis
+	var g_x;
+	var g_y;
+	
+	//variables for groups
+	var allgroup;
+	var xvar_i;
+	var yvar_i;
+	
+	var scatterplot;
+	
+	
+		
+	  if(window.File && window.FileReader && window.FileList && window.Blob)
+	  {
+		d3.select("body")
+		   .append("p")
+		   .text("The file APIs are fully supported in this brower")
+		   .style("font-size", "12px");
+	  }
+	  else
+	  {
+		alert("The file APIs are not fully supported in this brower");
+	  }
+	  
+	
+	  
+	function handleDragOver(evt) {
+		evt.stopPropagation();
+		evt.preventDefault();
+		evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+	  }
+	  
+	function errorHandler(evt) {
+		switch(evt.target.error.code) {
+		  case evt.target.error.NOT_FOUND_ERR:
+			alert('File Not Found!');
+			break;
+		  case evt.target.error.NOT_READABLE_ERR:
+			alert('File is not readable');
+			break;
+		  case evt.target.error.ABORT_ERR:
+			break; // noop
+		  default:
+			alert('An error occurred reading this file.');
+				};
+			}
+			
+	function updateProgress(evt) {
+		// evt is an ProgressEvent.
+		if (evt.lengthComputable) {
+			var percentLoaded = Math.round((evt.loaded / evt.total) * 100);
+		// Increase the progress bar length.
+		if (percentLoaded < 100) {
+			progress.style.width = percentLoaded + '%';
+			progress.textContent = percentLoaded + '%';
+			}
+		}
+	}
+	
+	
+
+	  // Setup the dnd listeners.
+	  var dropZone = document.getElementById('drop_zone');
+	  dropZone.addEventListener('dragover', handleDragOver, false);
+	  dropZone.addEventListener('drop', handleFileSelect, false);
+	  
+	  
+	function abortRead() {
+		reader.abort();
+	}
+	
+	function handleFileSelect(evt){
+	  
+		evt.stopPropagation();
+		evt.preventDefault();
+		
+		progress.style.width = '0%';
+		progress.textContent = '0%';
+		
+		
+		var files = evt.dataTransfer.files; // FileList object.
+		
+		// files is a FileList of File objects. List some properties.
+		var output = [];
+		for (var i = 0, f; f = files[i]; i++) {
+		  output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+					  f.size, ' bytes, last modified: ',
+					  f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+					  '</li>');
+		}
+		document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+		
+		reader = new FileReader();
+		reader.onerror = errorHandler;
+		reader.onprogress = updateProgress;
+		reader.onabort = function(e) {
+		  alert('File read cancelled');
+		};
+		reader.onloadstart = function(e) {
+		  document.getElementById('progress_bar').className = 'loading';
+		};
+		reader.onload = function(e) {
+		// Ensure that the progress bar displays 100% at the end.
+		progress.style.width = '100%';
+		progress.textContent = '100%';
+		setTimeout("document.getElementById('progress_bar').className='';", 200000);
+		  
+		data=d3.csvParse(e.target.result);
+		  
+		xvar_i=0;
+		yvar_i=1;
+		
+		allGroup=d3.keys(data[0]);
+		
+		d3.selectAll('option').remove();
+		
+		  // add the options to the button
+		d3.select("#selectX")
+			.selectAll('myOptions')
+			.data(allGroup)
+			.enter()
+			.append('option')
+			.text(function (d) { return d; }) // text showed in the menu
+			.attr("value", function (d) { return d; }) // corresponding value returned by the button
+	  
+	     // add the options to the button
+	    d3.select("#selectY")
+			.selectAll('myOptions')
+			.data(allGroup)
+			.enter()
+			.append('option')
+			.text(function (d) { return d; }) // text showed in the menu
+			.attr("value", function (d) { return d; }) // corresponding value returned by the button
+		  
+		createScatterPlot();
+		  
+
+		}
+		
+	
+		// Read in the first file as a text
+		reader.readAsText(evt.dataTransfer.files[0]);
+		
+	  }
+	  
+	function createScatterPlot(){
+	
+	  var ymin= 0;
+	  var ymax= d3.max(data,function(d){return +d3.values(d)[yvar_i];});
+	  var xmin= 0;
+	  var xmax= d3.max(data,function(d){return +d3.values(d)[xvar_i];});
+	  
+	  default_xmin=xmin;
+	  default_xmax=xmax;
+	  default_ymin=ymin;
+	  default_ymax=ymax;
+	  
+	  d3.selectAll("g").remove();
+	  sx=d3.scaleLinear().domain([xmin,xmax*1.2]).range([0,300]);
+	  sy=d3.scaleLinear().domain([ymin,ymax*1.2]).range([300,0]);
+	  
+
+	  scatterplot=d3.select("svg")
+	  .attr("width","400")
+	  .attr("height","400")
+	  .append("g")
+		.attr("transform","translate("+50+","+50+")")
+	  .selectAll("circle")
+	  .data(data)
+	  .enter()
+	  .append("circle")
+		.attr("cx",function(d,i){return sx(d3.values(d)[xvar_i]);})
+		.attr("cy",function(d,i){return sy(d3.values(d)[yvar_i]);})
+		.attr("r",function(){return 4;});
+		
+		g_y=d3.select("svg")
+		.append("g")
+		.attr("transform","translate("+50+","+50+")")
+		.call(d3.axisLeft(sy));
+
+		g_x=d3.select("svg")
+		.append("g")
+		.attr("transform","translate("+50+","+350+")")
+		.call(d3.axisBottom(sx));
+	
+	}
+	
+	
+	// A function that update the plot for a given xlim value
+    function updateXmax() {
+
+		// Get the value of the button
+		xmax = this.value;
+
+		default_xmax=xmax;
+		// Update X axis
+		sx.domain([default_xmin,xmax]);
+		g_x.transition().duration(1000).call(d3.axisBottom(sx));
+
+		// Update chart
+		d3.selectAll("circle")
+		   .data(data)
+		   .transition()
+		   .duration(1000)
+		   .attr("cx", function (d) { return sx(d3.values(d)[xvar_i]); } )
+		   .attr("cy", function (d) { return sy(d3.values(d)[yvar_i]); } )
+    }
+	
+	// A function that update the plot for a given xlim value
+    function updateXmin() {
+
+		// Get the value of the button
+		xmin = this.value;
+		default_xmin=xmin;
+
+		// Update X axis
+		sx.domain([xmin,default_xmax]);
+		g_x.transition().duration(1000).call(d3.axisBottom(sx));
+
+		// Update chart
+		d3.selectAll("circle")
+		   .data(data)
+		   .transition()
+		   .duration(1000)
+		   .attr("cx", function (d) { return sx(d3.values(d)[xvar_i]); } )
+		   .attr("cy", function (d) { return sy(d3.values(d)[yvar_i]); } )
+    }
+	
+	// A function that update the plot for a given xlim value
+    function updateYmin() {
+
+		// Get the value of the button
+		ymin = this.value;
+		default_ymin=ymin;
+
+		// Update X axis
+		sy.domain([ymin,default_ymax]);
+		g_y.transition().duration(1000).call(d3.axisLeft(sy));
+
+		// Update chart
+		d3.selectAll("circle")
+		   .data(data)
+		   .transition()
+		   .duration(1000)
+		   .attr("cx", function (d) { return sx(d3.values(d)[xvar_i]); } )
+		   .attr

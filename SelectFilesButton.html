@@ -1,0 +1,40 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>D3 Project</title>
+	<script src = "https://d3js.org/d3.v4.min.js"></script>
+  </head>
+  <body>
+  	<input type="file" id="datafile" name="files[]" multiple>
+	<output id="list"></output>
+    <script>
+
+	  if(window.File && window.FileReader && window.FileList && window.Blob)
+	  {
+		d3.select("body")
+		   .append("p")
+		   .text("The file APIs are fully supported in this brower");
+	  }
+	  else
+	  {
+		alert("The file APIs are not fully supported in this brower");
+	  }
+	  
+	  function handleFileSelect(evt){
+		var files=evt.target.files; //FileList object
+		
+		// files a FileList of File objects. List some properties
+		var output=[];
+		for(var i=0,f;f=files[i];i++){
+			output.push('<li><strong>',escpe(f.name),'</strong> (', f.type || 'n/a',') -', f.size, ' bytes, last modified: ',
+					f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+                  '</li>');
+				  
+			document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+		}	
+	  }
+	  
+	  document.getElementById('datafile').addEventListener('change', handleFileSelect, false);
+    </script>
+  </body>
+</html>
