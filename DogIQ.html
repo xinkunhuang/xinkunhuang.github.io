@@ -245,15 +245,15 @@
 
     // Read data
 
-    d3.csv('https://xinkunhuang.github.io/data.csv').then(function(data) {
+    d3.csv('https://xinkunhuang.github.io/data2.csv').then(function(data) {
 
       // stratify the data: reformatting for d3.js
       var root = d3.stratify()
         .id(function(d) { return d["Breed"]; })   // Name of the entity (column name is name in csv)
-        .parentId(function(d) { return d["All"]; })   // Name of the parent (column name is parent in csv)
+        .parentId(function(d) { return d["Response"]; })   // Name of the parent (column name is parent in csv)
         (data);
 
-      root.sum(function(d) { return +d["height_low_lbs"]; })   // Compute the numeric value for each entity
+      root.sum(function(d) { return +d["weight_low_lbs"]; })   // Compute the numeric value for each entity
 
       // Then d3.treemap computes the position of each element of the hierarchy
       // The coordinates are added to the root object above
@@ -284,9 +284,10 @@
         .append("text")
           .attr("x", function(d){ return d.x0+10})    // +10 to adjust position (more right)
           .attr("y", function(d){ return d.y0+20})    // +20 to adjust position (lower)
-          .text(function(d){ return d.data.name})
-          .attr("font-size", "15px")
-          .attr("fill", "white")
+          .text(function(d){ return d.data.Breed})
+          .attr("font-size", "12px")
+          .attr("fill", "blue")
+          .call(d3.util.wrap(1))
     })
 
   }
