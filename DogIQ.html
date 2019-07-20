@@ -238,14 +238,14 @@
 
     var svg = d3.select("#second")
           .append("svg")
-            .attr("width", width)
-            .attr("height", height)
+            .attr("width", width+1000)
+            .attr("height", height+1000)
           .append("g");
             //.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
     // Read data
 
-    data=d3.csv('https://xinkunhuang.github.io/data2.csv').then(function(d) {
+    data=d3.csv('https://xinkunhuang.github.io/data2.csv').then(function(data) {
 
       // stratify the data: reformatting for d3.js
       var root = d3.stratify()
@@ -258,13 +258,13 @@
       // Then d3.treemap computes the position of each element of the hierarchy
       // The coordinates are added to the root object above
       d3.treemap()
-        .size([width, height])
+        .size([width+600, height+600])
         .padding(4)
         (root)
 
         // set the color scale
         var color = d3.scaleOrdinal()
-          .domain(d["Classification"])
+          .domain(["Above Average Working Dogs","Average Working/Obedience Intelligence","Brightest Dogs","Fair Working/Obedience Intelligence","Lowest Degree of Working/Obedience Intelligence"])
           .range(d3.schemeSet2);
       // use this information to add rectangles:
       svg
@@ -279,18 +279,51 @@
           .style("stroke", "black")
           .attr('fill', function(d){ return(color(d.data.Classification)) });
 
+
+      function wrap(text, width) {
+        text.each(function () {
+            var text = d3.select(this),
+                words = text.text().split(/\s+/).reverse(),
+                word,
+                line = [],
+                lineNumber = 0,
+                lineHeight = 1.1, // ems
+                x = text.attr("x"),
+                y = text.attr("y"),
+                dy = 0, //parseFloat(text.attr("dy")),
+                tspan = text.text(null)
+                            .append("tspan")
+                            .attr("x", x)
+                            .attr("y", y)
+                            .attr("dy", dy + "em");
+            while (word = words.pop()) {
+                line.push(word);
+                tspan.text(line.join(" "));
+                if (tspan.node().getComputedTextLength() > width) {
+                    line.pop();
+                    tspan.text(line.join(" "));
+                    line = [word];
+                    tspan = text.append("tspan")
+                                .attr("x", x)
+                                .attr("y", y)
+                                .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                                .text(word);
+                }
+            }
+        });
+    }
       // and to add the text labels
       svg
         .selectAll("text")
         .data(root.leaves())
         .enter()
         .append("text")
-          .attr("x", function(d){ return d.x0+10})    // +10 to adjust position (more right)
-          .attr("y", function(d){ return d.y0+20})    // +20 to adjust position (lower)
+          .attr("x", function(d){ return d.x0})    // +10 to adjust position (more right)
+          .attr("y", function(d){ return d.y0})    // +20 to adjust position (lower)
           .text(function(d){ return d.data.Breed})
-          .attr("font-size", "12px")
+          .attr("font-size", "14px")
           .attr("fill", "blue")
-          .call(d3.util.wrap(1))
+          .call(wrap,20)
     })
 
   }
