@@ -2,7 +2,7 @@
 <meta charset="utf-8">
 
 <!-- Load d3.js -->
-<script src="https://d3js.org/d3.v5.js"></script>
+<script src="https://d3js.org/d3.v5.min.js" id="script_src"></script>
 <!-- Create a div where the graph will take place -->
 <head>
   <title>Dog Size VS Intelligence</title>
@@ -228,11 +228,71 @@
     }
   function disp_tree()
   {
+
+
+
     d3.select("#first").html("");
     d3.select("#second").html("");
     d3.select("#third").html("");
 
+
+    var svg = d3.select("#second")
+          .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+          .append("g");
+            //.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+    // Read data
+
+    d3.csv('https://xinkunhuang.github.io/data.csv').then(function(data) {
+
+      // stratify the data: reformatting for d3.js
+      var root = d3.stratify()
+        .id(function(d) { return d["Breed"]; })   // Name of the entity (column name is name in csv)
+        .parentId(function(d) { return d["Classification"]; })   // Name of the parent (column name is parent in csv)
+        (data);
+
+      root.sum(function(d) { return +d["height_low_lbs"]; })   // Compute the numeric value for each entity
+
+      // Then d3.treemap computes the position of each element of the hierarchy
+      // The coordinates are added to the root object above
+      d3.treemap()
+        .size([width, height])
+        .padding(4)
+        (root)
+
+    console.log(root.leaves())
+      // use this information to add rectangles:
+      svg
+        .selectAll("rect")
+        .data(root.leaves())
+        .enter()
+        .append("rect")
+          .attr('x', function (d) { return d.x0; })
+          .attr('y', function (d) { return d.y0; })
+          .attr('width', function (d) { return d.x1 - d.x0; })
+          .attr('height', function (d) { return d.y1 - d.y0; })
+          .style("stroke", "black")
+          .style("fill", "#69b3a2");
+
+      // and to add the text labels
+      svg
+        .selectAll("text")
+        .data(root.leaves())
+        .enter()
+        .append("text")
+          .attr("x", function(d){ return d.x0+10})    // +10 to adjust position (more right)
+          .attr("y", function(d){ return d.y0+20})    // +20 to adjust position (lower)
+          .text(function(d){ return d.data.name})
+          .attr("font-size", "15px")
+          .attr("fill", "white")
+    })
+
   }
+
+
+
   function disp_plot()
   {
     d3.select("#first").html("");
