@@ -11,11 +11,14 @@
   <h1 style="text-align:center">Dog Size VS Intelligence</h1>
   <button type="button" id="firstbutton">First page</button>
   <button type="button" id="secondbutton">Second page</button>
-  <button type="button" id="secondbutton">Third page</button>
+  <button type="button" id="thirdbutton">Third page</button>
   <div><br></br></div>
   <div id="first">
-    <g id="table header">Breed: </g>
     <g id="table" ></g>
+  </div>
+  <div id="second">
+  </div>
+  <div id="third">
   </div>
 
 
@@ -28,185 +31,220 @@
       height = 450
       margin = 40
 
+
   // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
   var radius = Math.min(width, height) / 2 - margin
 
-  // append the svg object to the div called 'my_dataviz'
-  var svg = d3.select("#first")
-    .append("svg")
-      .attr("width", width)
-      .attr("height", height)
-    .append("g")
-      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+  function disp_pie(){
+    d3.select("#first").html("");
+    d3.select("#second").html("");
+    d3.select("#third").html("");
 
-      var breed=[];
-      var height_l=[];
-      var height_h=[];
-      var weight_l=[];
-      var weight_h=[];
-      var classification=[];
-      var obey=[];
-      var resp_l=[];
-      var resp_h=[];
+    d3
+      .select("#first")
+      .append("g")
+      .attr("id","table header")
+      .text("Breed: ");
 
-      // create 2 data_set
-      var data = d3.csv("https://xinkunhuang.github.io/data.csv").then(function(data) {
+    d3
+      .select("#first")
+      .append("g")
+      .attr("id","table");
 
-        data.map(function(d){
-
-
-          breed.push(d.Breed);
-          height_l.push(+d.height_low_inches);
-          height_h.push(+d.height_high_inches);
-          weight_l.push(+d.weight_low_lbs);
-          weight_h.push(+d.weight_high_lbs);
-          classification.push(d.Classification);
-          obey.push(d.obey);
-          resp_l.push(d.reps_lower);
-          resp_h.push(d.reps_upper);
-
-        });
-
-        var occurrences = { };
-        for (var i = 0, j = classification.length; i < j; i++) {
-           occurrences[classification[i]] = (occurrences[classification[i]] || 0) + 1;
-        }
-
-      // set the color scale
-      var color = d3.scaleOrdinal()
-        .domain(occurrences)
-        .range(d3.schemeSet2);
+    var svg = d3.select("#first")
+          .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+          .append("g")
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
 
-      // Compute the position of each group on the pie:
-      var pie = d3.pie()
-        .value(function(d) {return d.value; })
-      var data_ready = pie(d3.entries(occurrences))
-      // Now I know that group A goes from 0 degrees to x degrees and so on.
+        var breed=[];
+        var height_l=[];
+        var height_h=[];
+        var weight_l=[];
+        var weight_h=[];
+        var classification=[];
+        var obey=[];
+        var resp_l=[];
+        var resp_h=[];
 
-      // shape helper to build arcs:
-      var arcGenerator = d3.arc()
-        .innerRadius(0)
-        .outerRadius(radius)
+        // create 2 data_set
+        var data = d3.csv("https://xinkunhuang.github.io/data.csv").then(function(data) {
 
-      // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
-      svg
-        .selectAll('mySlices')
-        .data(data_ready)
-        .enter()
-        .append('path')
-          .attr('d', arcGenerator)
-          .attr('fill', function(d){ return(color(d.data.key)) })
-          .attr("stroke", "black")
-          .style("stroke-width", "2px")
-          .style("opacity", 0.7)
+          data.map(function(d){
 
-      // Now add the annotation. Use the centroid method to get the best coordinates
-      svg
-        .selectAll('mySlices')
-        .data(data_ready)
-        .enter()
-        .append('text')
-        .text(function(d){ return  d.data.value+"%";})
-        .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
-        .style("text-anchor", "middle")
-        .style("font-size", 16)
 
-      svg
-        .selectAll("rects")
-            .data(data_ready)
-            .enter()
-            .append("rect")
-            .attr("x", 200)
-            .attr("height", 20)
-            .attr("y", (d,i)=> i*20)
-            .attr("width", 40)
+            breed.push(d.Breed);
+            height_l.push(+d.height_low_inches);
+            height_h.push(+d.height_high_inches);
+            weight_l.push(+d.weight_low_lbs);
+            weight_h.push(+d.weight_high_lbs);
+            classification.push(d.Classification);
+            obey.push(d.obey);
+            resp_l.push(d.reps_lower);
+            resp_h.push(d.reps_upper);
+
+          });
+
+          var occurrences = { };
+          for (var i = 0, j = classification.length; i < j; i++) {
+             occurrences[classification[i]] = (occurrences[classification[i]] || 0) + 1;
+          }
+
+        // set the color scale
+        var color = d3.scaleOrdinal()
+          .domain(occurrences)
+          .range(d3.schemeSet2);
+
+
+        // Compute the position of each group on the pie:
+        var pie = d3.pie()
+          .value(function(d) {return d.value; })
+        var data_ready = pie(d3.entries(occurrences))
+        // Now I know that group A goes from 0 degrees to x degrees and so on.
+
+        // shape helper to build arcs:
+        var arcGenerator = d3.arc()
+          .innerRadius(0)
+          .outerRadius(radius)
+
+        // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+        svg
+          .selectAll('mySlices')
+          .data(data_ready)
+          .enter()
+          .append('path')
+            .attr('d', arcGenerator)
             .attr('fill', function(d){ return(color(d.data.key)) })
-            .attr("stroke", "gray");
+            .attr("stroke", "black")
+            .style("stroke-width", "2px")
+            .style("opacity", 0.7)
 
         // Now add the annotation. Use the centroid method to get the best coordinates
         svg
-            .selectAll("rects")
-            .data(data_ready)
-            .enter()
-            .append('text')
-            .text(function(d){ return  d.data.key;})
-            .attr("x", 250)
-            .attr("y", (d,i)=> i*20+15)
-            .style("text-anchor", "right")
-            .style("font-size", 14);
-
+          .selectAll('mySlices')
+          .data(data_ready)
+          .enter()
+          .append('text')
+          .text(function(d){ return  d.data.value+"%";})
+          .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
+          .style("text-anchor", "middle")
+          .style("font-size", 16)
 
         svg
-            .selectAll("rect")
-            .on("click", function() {
+          .selectAll("rects")
+              .data(data_ready)
+              .enter()
+              .append("rect")
+              .attr("x", 200)
+              .attr("height", 20)
+              .attr("y", (d,i)=> i*20)
+              .attr("width", 40)
+              .attr('fill', function(d){ return(color(d.data.key)) })
+              .attr("stroke", "gray");
 
-              var ycood=d3.mouse(this)[1];
-              var filteredData;
-
-              if (ycood < 20)
-              {
-                d3.select("#table").selectAll("p").remove();
-                filteredData = data.filter(function(d) {
-                  if( d["Classification"] == "Average Working/Obedience Intelligence")
-                  {return d;}
-                })
-                d3.select("#table").selectAll("p").data(filteredData).enter().append("p")
-                .style("display", "inline").text(function(d,i){return i+"."+d.Breed+" ";});
-              }
-              else if (ycood < 40)
-              {
-                d3.select("#table").selectAll("p").remove();
-                filteredData = data.filter(function(d) {
-                  if( d["Classification"] == "Excellent Working Dogs")
-                  {return d;}
-                })
-                d3.select("#table").selectAll("p").data(filteredData).enter().append("p")
-                .style("display", "inline").text(function(d,i){return i+"."+d.Breed+" ";});
-              }
-              else if (ycood < 60)
-              {
-                d3.select("#table").selectAll("p").remove();
-                filteredData = data.filter(function(d) {
-                  if( d["Classification"] == "Fair Working/Obedience Intelligence")
-                  {return d;}
-                })
-                d3.select("#table").selectAll("p").data(filteredData).enter().append("p")
-                .style("display", "inline").text(function(d,i){return i+"."+d.Breed+" ";});
-              }
-              else if (ycood < 80)
-              {
-                d3.select("#table").selectAll("p").remove();
-                filteredData = data.filter(function(d) {
-                  if( d["Classification"] == "Above Average Working Dogs")
-                  {return d;}
-                })
-                d3.select("#table").selectAll("p").data(filteredData).enter().append("p")
-                .style("display", "inline").text(function(d,i){return i+"."+d.Breed+" ";});
-              }
-              else if (ycood < 100)
-              {
-                d3.select("#table").selectAll("p").remove();
-                filteredData = data.filter(function(d) {
-                  if( d["Classification"] == "Brightest Dogs")
-                  {return d;}
-                })
-                d3.select("#table").selectAll("p").data(filteredData).enter().append("p")
-                .style("display", "inline").text(function(d,i){return i+"."+d.Breed+" ";});
-              }
-              else
-              {
-
-              }
+          // Now add the annotation. Use the centroid method to get the best coordinates
+          svg
+              .selectAll("rects")
+              .data(data_ready)
+              .enter()
+              .append('text')
+              .text(function(d){ return  d.data.key;})
+              .attr("x", 250)
+              .attr("y", (d,i)=> i*20+15)
+              .style("text-anchor", "right")
+              .style("font-size", 14);
 
 
-            })
+          svg
+              .selectAll("rect")
+              .on("click", function() {
+
+                var ycood=d3.mouse(this)[1];
+                var filteredData;
+
+                if (ycood < 20)
+                {
+                  d3.select("#table").selectAll("p").remove();
+                  filteredData = data.filter(function(d) {
+                    if( d["Classification"] == "Average Working/Obedience Intelligence")
+                    {return d;}
+                  })
+                  d3.select("#table").selectAll("p").data(filteredData).enter().append("p")
+                  .style("display", "inline").text(function(d,i){return i+"."+d.Breed+" ";});
+                }
+                else if (ycood < 40)
+                {
+                  d3.select("#table").selectAll("p").remove();
+                  filteredData = data.filter(function(d) {
+                    if( d["Classification"] == "Excellent Working Dogs")
+                    {return d;}
+                  })
+                  d3.select("#table").selectAll("p").data(filteredData).enter().append("p")
+                  .style("display", "inline").text(function(d,i){return i+"."+d.Breed+" ";});
+                }
+                else if (ycood < 60)
+                {
+                  d3.select("#table").selectAll("p").remove();
+                  filteredData = data.filter(function(d) {
+                    if( d["Classification"] == "Fair Working/Obedience Intelligence")
+                    {return d;}
+                  })
+                  d3.select("#table").selectAll("p").data(filteredData).enter().append("p")
+                  .style("display", "inline").text(function(d,i){return i+"."+d.Breed+" ";});
+                }
+                else if (ycood < 80)
+                {
+                  d3.select("#table").selectAll("p").remove();
+                  filteredData = data.filter(function(d) {
+                    if( d["Classification"] == "Above Average Working Dogs")
+                    {return d;}
+                  })
+                  d3.select("#table").selectAll("p").data(filteredData).enter().append("p")
+                  .style("display", "inline").text(function(d,i){return i+"."+d.Breed+" ";});
+                }
+                else if (ycood < 100)
+                {
+                  d3.select("#table").selectAll("p").remove();
+                  filteredData = data.filter(function(d) {
+                    if( d["Classification"] == "Brightest Dogs")
+                    {return d;}
+                  })
+                  d3.select("#table").selectAll("p").data(filteredData).enter().append("p")
+                  .style("display", "inline").text(function(d,i){return i+"."+d.Breed+" ";});
+                }
+                else
+                {
+
+                }
+
+
+              })
 
 
 
-      });
+        });
+    }
+  function disp_tree()
+  {
+    d3.select("#first").html("");
+    d3.select("#second").html("");
+    d3.select("#third").html("");
+
+  }
+  function disp_plot()
+  {
+    d3.select("#first").html("");
+    d3.select("#second").html("");
+    d3.select("#third").html("");
+
+  }
 
 
+  d3.select("#firstbutton").on("click",disp_pie);
+  d3.select("#secondbutton").on("click",disp_tree);
+  d3.select("#thirdbutton").on("click",disp_plot);
 
 
 
