@@ -69,7 +69,7 @@
         var resp_l=[];
         var resp_h=[];
 
-        // create 2 data_set
+
         var data = d3.csv("https://xinkunhuang.github.io/data.csv").then(function(data) {
 
           data.map(function(d){
@@ -245,12 +245,12 @@
 
     // Read data
 
-    d3.csv('https://xinkunhuang.github.io/data2.csv').then(function(data) {
+    data=d3.csv('https://xinkunhuang.github.io/data2.csv').then(function(data) {
 
       // stratify the data: reformatting for d3.js
       var root = d3.stratify()
         .id(function(d) { return d["Breed"]; })   // Name of the entity (column name is name in csv)
-        .parentId(function(d) { return d["Response"]; })   // Name of the parent (column name is parent in csv)
+        .parentId(function(d) { return d["Classification"]; })   // Name of the parent (column name is parent in csv)
         (data);
 
       root.sum(function(d) { return +d["weight_low_lbs"]; })   // Compute the numeric value for each entity
@@ -304,7 +304,7 @@
 
 
   d3.select("#firstbutton").on("click",disp_pie);
-  d3.select("#secondbutton").on("click",disp_tree);
+  //d3.select("#secondbutton").on("click",disp_tree);
   d3.select("#thirdbutton").on("click",disp_plot);
 
 
