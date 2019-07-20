@@ -250,7 +250,7 @@
       // stratify the data: reformatting for d3.js
       var root = d3.stratify()
         .id(function(d) { return d["Breed"]; })   // Name of the entity (column name is name in csv)
-        .parentId(function(d) { return d["Classification"]; })   // Name of the parent (column name is parent in csv)
+        .parentId(function(d) { return d["Response"]; })   // Name of the parent (column name is parent in csv)
         (data);
 
       root.sum(function(d) { return +d["weight_low_lbs"]; })   // Compute the numeric value for each entity
@@ -262,7 +262,10 @@
         .padding(4)
         (root)
 
-    console.log(root.leaves())
+        // set the color scale
+        var color = d3.scaleOrdinal()
+          .domain(d["Classification"])
+          .range(d3.schemeSet2);
       // use this information to add rectangles:
       svg
         .selectAll("rect")
@@ -274,7 +277,7 @@
           .attr('width', function (d) { return d.x1 - d.x0; })
           .attr('height', function (d) { return d.y1 - d.y0; })
           .style("stroke", "black")
-          .style("fill", "#69b3a2");
+          .attr('fill', function(d){ return(color(d.data.Classification)) });
 
       // and to add the text labels
       svg
@@ -304,7 +307,7 @@
 
 
   d3.select("#firstbutton").on("click",disp_pie);
-  //d3.select("#secondbutton").on("click",disp_tree);
+  d3.select("#secondbutton").on("click",disp_tree);
   d3.select("#thirdbutton").on("click",disp_plot);
 
 
