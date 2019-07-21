@@ -14,7 +14,6 @@
   <button type="button" id="thirdbutton">Third page</button>
   <div><br></br></div>
   <div id="first">
-    <g id="table" ></g>
   </div>
   <div id="second">
   </div>
@@ -35,6 +34,39 @@
   // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
   var radius = Math.min(width, height) / 2 - margin
 
+  function wrap(text, width) {
+    text.each(function () {
+        var text = d3.select(this),
+            words = text.text().split(/\s+/).reverse(),
+            word,
+            line = [],
+            lineNumber = 0,
+            lineHeight = 1.1, // ems
+            x = text.attr("x"),
+            y = text.attr("y"),
+            dy = 0, //parseFloat(text.attr("dy")),
+            tspan = text.text(null)
+                        .append("tspan")
+                        .attr("x", x)
+                        .attr("y", y)
+                        .attr("dy", dy + "em");
+        while (word = words.pop()) {
+            line.push(word);
+            tspan.text(line.join(" "));
+            if (tspan.node().getComputedTextLength() > width) {
+                line.pop();
+                tspan.text(line.join(" "));
+                line = [word];
+                tspan = text.append("tspan")
+                            .attr("x", x)
+                            .attr("y", y)
+                            .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                            .text(word);
+            }
+        }
+    });
+
+  }
   function disp_pie(){
     d3.select("#first").html("");
     d3.select("#second").html("");
@@ -51,6 +83,7 @@
       .append("g")
       .attr("id","table");
 
+
     var svg = d3.select("#first")
           .append("svg")
             .attr("width", width)
@@ -58,32 +91,14 @@
           .append("g")
             .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-
-        var breed=[];
-        var height_l=[];
-        var height_h=[];
-        var weight_l=[];
-        var weight_h=[];
         var classification=[];
-        var obey=[];
-        var resp_l=[];
-        var resp_h=[];
-
 
         var data = d3.csv("https://xinkunhuang.github.io/data.csv").then(function(data) {
 
           data.map(function(d){
 
 
-            breed.push(d.Breed);
-            height_l.push(+d.height_low_inches);
-            height_h.push(+d.height_high_inches);
-            weight_l.push(+d.weight_low_lbs);
-            weight_h.push(+d.weight_high_lbs);
             classification.push(d.Classification);
-            obey.push(d.obey);
-            resp_l.push(d.reps_lower);
-            resp_h.push(d.reps_upper);
 
           });
 
@@ -144,7 +159,19 @@
               .attr('fill', function(d){ return(color(d.data.key)) })
               .attr("stroke", "gray");
 
-          // Now add the annotation. Use the centroid method to get the best coordinates
+          svg
+              .append("text")
+              .text("There are 96 breeds of dogs in this dataset.This dataset divides the breeds into 5 Intelligence categories. By clicking the legend on the right, the breeds for the intelligence category will show up.")
+              .attr("x",-500)
+              .attr("y",-210)
+              .style("fill","darkOrange")
+              .call(wrap,800);
+
+          svg
+              .append('text')
+              .text("Click the legend below to show the breed")
+              .attr("x",200)
+              .attr("y",-20)
           svg
               .selectAll("rects")
               .data(data_ready)
@@ -229,8 +256,6 @@
   function disp_tree()
   {
 
-
-
     d3.select("#first").html("");
     d3.select("#second").html("");
     d3.select("#third").html("");
@@ -238,10 +263,11 @@
 
     var svg = d3.select("#second")
           .append("svg")
-            .attr("width", width+1000)
-            .attr("height", height+1000)
-          .append("g");
-            //.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+            .attr("width", width+600)
+            .attr("height", height+200)
+          .append("g")
+          .attr("transform", "translate(" + 10 + "," + 70 + ")");
+
 
     // Read data
 
@@ -258,13 +284,14 @@
       // Then d3.treemap computes the position of each element of the hierarchy
       // The coordinates are added to the root object above
       d3.treemap()
-        .size([width+600, height+600])
+        .size([width, height])
         .padding(4)
         (root)
 
+      var dogbreed=["Above Average Working Dogs","Average Working/Obedience Intelligence","Brightest Dogs","Fair Working/Obedience Intelligence","Lowest Degree of Working/Obedience Intelligence"];
         // set the color scale
         var color = d3.scaleOrdinal()
-          .domain(["Above Average Working Dogs","Average Working/Obedience Intelligence","Brightest Dogs","Fair Working/Obedience Intelligence","Lowest Degree of Working/Obedience Intelligence"])
+          .domain(dogbreed)
           .range(d3.schemeSet2);
       // use this information to add rectangles:
       svg
@@ -277,41 +304,42 @@
           .attr('width', function (d) { return d.x1 - d.x0; })
           .attr('height', function (d) { return d.y1 - d.y0; })
           .style("stroke", "black")
-          .attr('fill', function(d){ return(color(d.data.Classification)) });
+          .attr('fill', function(d){ return(color(d.data.Classification)) })
+          .on("mouseover", handleMouseOver)
+          .on("mouseout", handleMouseOut);
+
+        svg
+          .selectAll("circle")
+          .data(dogbreed)
+          .enter()
+          .append("circle")
+          .attr('cx', 800)
+          .attr('cy', function(d,i){return i*10-60;})
+          .attr("r", 5)
+          .attr('fill', function(d){ return(color(d)); })
+          .attr("stroke", "gray");
 
 
-      function wrap(text, width) {
-        text.each(function () {
-            var text = d3.select(this),
-                words = text.text().split(/\s+/).reverse(),
-                word,
-                line = [],
-                lineNumber = 0,
-                lineHeight = 1.1, // ems
-                x = text.attr("x"),
-                y = text.attr("y"),
-                dy = 0, //parseFloat(text.attr("dy")),
-                tspan = text.text(null)
-                            .append("tspan")
-                            .attr("x", x)
-                            .attr("y", y)
-                            .attr("dy", dy + "em");
-            while (word = words.pop()) {
-                line.push(word);
-                tspan.text(line.join(" "));
-                if (tspan.node().getComputedTextLength() > width) {
-                    line.pop();
-                    tspan.text(line.join(" "));
-                    line = [word];
-                    tspan = text.append("tspan")
-                                .attr("x", x)
-                                .attr("y", y)
-                                .attr("dy", ++lineNumber * lineHeight + dy + "em")
-                                .text(word);
-                }
-            }
-        });
-    }
+      // Create Event Handlers for mouse
+      function handleMouseOver(d, i) {  // Add interactivity
+
+            // Specify where to put label of text
+
+            svg
+            .append("text")
+            .attr("id", function(){ return "popup";})
+            .attr("x",function(){return d.x0;})
+            .attr("y",function(){return d.y0+10;})
+            .text(function() {return d.data.Breed;})
+            .attr("font-size", "18px");
+          }
+
+      function handleMouseOut(d, i) {
+
+            // Select text by id and then remove
+            d3.select("#popup").remove();  // Remove text location
+          }
+
       // and to add the text labels
       svg
         .selectAll("text")
@@ -320,10 +348,70 @@
         .append("text")
           .attr("x", function(d){ return d.x0})    // +10 to adjust position (more right)
           .attr("y", function(d){ return d.y0})    // +20 to adjust position (lower)
-          .text(function(d){ return d.data.Breed})
-          .attr("font-size", "14px")
+          .text(function(d){
+            if ((d.x1 - d.x0)<40 || (d.y1-d.y0)<40)
+            {
+              return "";
+            }
+            else {
+
+              return d.data.Breed;
+            }
+
+          }
+          )
+          .attr("font-size", "12px")
           .attr("fill", "blue")
-          .call(wrap,20)
+          .call(wrap,15)
+
+          svg
+            .append("text")
+            .text("Above Average Working Dogs")
+            .attr("x", 810)
+            .attr("y", -55)
+            .style("text-anchor", "right")
+            .style("font-size", 12);
+
+          svg
+            .append("text")
+            .text("Average Working/Obedience Intelligence")
+            .attr("x", 810)
+            .attr("y", -45)
+            .style("text-anchor", "right")
+            .style("font-size", 12);
+
+
+          svg
+            .append("text")
+            .text("Brightest Dogs")
+            .attr("x", 810)
+            .attr("y", -35)
+            .style("text-anchor", "right")
+            .style("font-size", 12);
+
+        svg
+          .append("text")
+          .text("Fair Working/Obedience Intelligence")
+          .attr("x", 810)
+          .attr("y", -25)
+          .style("text-anchor", "right")
+          .style("font-size", 12);
+
+        svg
+          .append("text")
+          .text("Lowest Degree of Working/Obedience Intelligence")
+          .attr("x", 810)
+          .attr("y", -15)
+          .style("text-anchor", "right")
+          .style("font-size", 12);
+
+        svg
+            .append("text")
+            .text("The tree map below is sized by breed's minimum weight and colored by the intelligence level. The size for some boxes is not big enough to contain the text, but audience can mouse over each box to check the breed name.")
+            .attr("x",0)
+            .attr("y",-40)
+            .style("fill","darkOrange")
+            .call(wrap,800);
     })
 
   }

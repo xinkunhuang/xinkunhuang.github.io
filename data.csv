@@ -1,15 +1,18 @@
 Breed,height_low_inches,height_high_inches,weight_low_lbs,weight_high_lbs,Classification,obey,reps_lower,reps_upper
 Akita,26,28,80,120,Average Working/Obedience Intelligence,0.5,26,40
 Bernese Mountain Dog,23,27,85,110,Excellent Working Dogs,0.85,5,15
+Bloodhound,24,26,80,120,Lowest Degree of Working/Obedience Intelligence ,,81,100
+Borzoi,26,28,70,100,Lowest Degree of Working/Obedience Intelligence ,,81,100
 Bullmastiff,25,27,100,130,Fair Working/Obedience Intelligence,0.3,41,80
 Great Dane,32,32,120,160,Average Working/Obedience Intelligence,0.5,26,40
 Great Pyrenees,27,32,95,120,Fair Working/Obedience Intelligence,0.3,41,80
 Irish Wolfhound,28,35,90,150,Average Working/Obedience Intelligence,0.5,26,40
 Kuvasz,28,30,70,120,Average Working/Obedience Intelligence,0.5,26,40
+Mastiff,27,30,175,190,Lowest Degree of Working/Obedience Intelligence ,,81,100
 Newfoundland,26,28,100,150,Above Average Working Dogs,0.7,16,25
 Rottweiler,22,27,90,110,Brightest Dogs,0.95,1,4
 Saint Bernard,25,28,110,190,Fair Working/Obedience Intelligence,0.3,41,80
-Alaskan Malamute,,,,,Average Working/Obedience Intelligence,0.5,26,40
+Afghan Hound,25,27,50,60,Lowest Degree of Working/Obedience Intelligence ,,81,100
 American Foxhound,22,25,65,70,Average Working/Obedience Intelligence,0.5,26,40
 Belgian Malinois,22,26,60,65,Excellent Working Dogs,0.85,5,15
 Belgian Sheepdog,22,26,60,75,Excellent Working Dogs,0.85,5,15
@@ -36,11 +39,13 @@ American Staffordshire Terrier,17,19,40,50,Above Average Working Dogs,0.7,16,25
 American Water Spaniel,15,18,25,45,Average Working/Obedience Intelligence,0.5,26,40
 Australian Cattle Dog,17,20,35,45,Brightest Dogs,0.95,1,4
 Australian Shepherd,18,23,40,60,Average Working/Obedience Intelligence,0.5,26,40
+Basset Hound,14,14,40,50,Lowest Degree of Working/Obedience Intelligence ,,81,100
 Bearded Collie,20,22,40,60,Above Average Working Dogs,0.7,16,25
 Border Collie,19,21,40,40,Brightest Dogs,0.95,1,4
 Brittany,17,21,30,40,Excellent Working Dogs,0.85,5,15
 Bull Terrier,21,22,50,70,Fair Working/Obedience Intelligence,0.3,41,80
 Chinese Shar Pei,18,20,45,55,Average Working/Obedience Intelligence,0.5,26,40
+Chow Chow,19,22,45,55,Lowest Degree of Working/Obedience Intelligence ,,81,100
 Dalmatian,19,23,45,70,Above Average Working Dogs,0.7,16,25
 English Springer Spaniel,20,20,45,55,Excellent Working Dogs,0.85,5,15
 Field Spaniel,18,18,35,50,Above Average Working Dogs,0.7,16,25
@@ -63,6 +68,8 @@ Vizsla,48,66,22,25,Excellent Working Dogs,0.85,5,15
 Welsh Springer Spaniel,16,19,35,45,Above Average Working Dogs,0.7,16,25
 Wirehaired Pointing Griffon,20,24,45,60,Average Working/Obedience Intelligence,0.5,26,40
 Australian Terrier,10,10,10,14,Above Average Working Dogs,0.7,16,25
+Basenji,17,17,20,22,Lowest Degree of Working/Obedience Intelligence ,,81,100
+Beagle,13,16,18,30,Lowest Degree of Working/Obedience Intelligence ,,81,100
 Bedlington Terrier,15,16,18,23,Average Working/Obedience Intelligence,0.5,26,40
 Bichon Frise,9.5,11.5,10,18,Average Working/Obedience Intelligence,0.5,26,40
 Border Terrier,12,15,12,15,Above Average Working Dogs,0.7,16,25
@@ -80,6 +87,7 @@ Schipperke,10,13,12,18,Excellent Working Dogs,0.85,5,15
 Scottish Terrier,10,12,18,22,Fair Working/Obedience Intelligence,0.3,41,80
 Sealyham Terrier,12,12,18,20,Fair Working/Obedience Intelligence,0.3,41,80
 Shiba Inu,13,16,15,30,Average Working/Obedience Intelligence,0.5,26,40
+Shih Tzu,8,11,9,16,Lowest Degree of Working/Obedience Intelligence ,,81,100
 Skye Terrier,10,10,25,25,Fair Working/Obedience Intelligence,0.3,41,80
 Tibetan Spaniel,10,10,9,15,Average Working/Obedience Intelligence,0.5,26,40
 Tibetan Terrier,14,17,20,30,Fair Working/Obedience Intelligence,0.3,41,80
