@@ -30,6 +30,9 @@
       height = 450
       margin = 40
 
+  var dogbreed=["Average Working/Obedience Intelligence","Excellent Working Dogs","Lowest Degree of Working/Obedience Intelligence ","Fair Working/Obedience Intelligence","Above Average Working Dogs","Brightest Dogs"];
+
+
 
   // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
   var radius = Math.min(width, height) / 2 - margin
@@ -161,7 +164,7 @@
 
           svg
               .append("text")
-              .text("There are 96 breeds of dogs in this dataset.This dataset divides the breeds into 5 Intelligence categories. By clicking the legend on the right, the breeds for the intelligence category will show up.")
+              .text("There are 105 breeds of dogs in this dataset.This dataset divides the breeds into 5 Intelligence categories. By clicking the legend on the right, the breeds for the intelligence category will show up.")
               .attr("x",-500)
               .attr("y",-210)
               .style("fill","darkOrange")
@@ -288,7 +291,6 @@
         .padding(4)
         (root)
 
-      var dogbreed=["Above Average Working Dogs","Average Working/Obedience Intelligence","Brightest Dogs","Fair Working/Obedience Intelligence","Lowest Degree of Working/Obedience Intelligence"];
         // set the color scale
         var color = d3.scaleOrdinal()
           .domain(dogbreed)
@@ -366,7 +368,7 @@
 
           svg
             .append("text")
-            .text("Above Average Working Dogs")
+            .text("Average Working/Obedience Intelligence")
             .attr("x", 810)
             .attr("y", -55)
             .style("text-anchor", "right")
@@ -374,7 +376,7 @@
 
           svg
             .append("text")
-            .text("Average Working/Obedience Intelligence")
+            .text("Excellent Working Dogs")
             .attr("x", 810)
             .attr("y", -45)
             .style("text-anchor", "right")
@@ -383,7 +385,7 @@
 
           svg
             .append("text")
-            .text("Brightest Dogs")
+            .text("Lowest Degree of Working/Obedience Intelli")
             .attr("x", 810)
             .attr("y", -35)
             .style("text-anchor", "right")
@@ -399,15 +401,23 @@
 
         svg
           .append("text")
-          .text("Lowest Degree of Working/Obedience Intelligence")
+          .text("Above Average Working Dogs")
           .attr("x", 810)
           .attr("y", -15)
           .style("text-anchor", "right")
           .style("font-size", 12);
 
         svg
+          .append("text")
+          .text("Brightest Dogs")
+          .attr("x", 810)
+          .attr("y", -5)
+          .style("text-anchor", "right")
+          .style("font-size", 12);
+
+        svg
             .append("text")
-            .text("The tree map below is sized by breed's minimum weight and colored by the intelligence level. The size for some boxes is not big enough to contain the text, but audience can mouse over each box to check the breed name.")
+            .text("The tree map below is sized by breed's minimum weight and colored by the intelligence level. The size for some boxes is not big enough to contain the text, but audience can mouse over each box to check the breed name.There is no clear relationship between the size of breed and intelligence.")
             .attr("x",0)
             .attr("y",-40)
             .style("fill","darkOrange")
@@ -423,6 +433,222 @@
     d3.select("#first").html("");
     d3.select("#second").html("");
     d3.select("#third").html("");
+
+    var xvar_i;
+    var yvar_i;
+    var allgroup;
+    var default_ymin;
+    var default_ymax;
+    var default_xmin;
+    var default_xmax;
+
+    var g_x;
+    var g_y;
+
+    var sx;
+    var sy;
+
+    var data;
+    var scatterplot;
+
+
+
+
+    d3.csv("https://xinkunhuang.github.io/data.csv").then(function(data) {
+
+      xvar_i=3;
+      yvar_i=6;
+
+      allGroup=d3.keys(data[0]);
+
+      var svg = d3.select("#third")
+            .append("svg")
+            .attr("width","500")
+            .attr("height","450");
+
+      console.log(data);
+
+      svg
+          .append("text")
+          .text("The plot shows IQ variable vs breed weight. List of outputs to choose: obey:probablity that the breed obeys the first command; reps_lower:lower limit of repetitions to understand new commands. reps_upper:limit of repetitions to understand new commands")
+          .attr("x",30)
+          .attr("y",10)
+          .style("fill","darkOrange")
+          .style("font-size", 14)
+          .call(wrap,400);
+
+
+      d3
+        .select("#third")
+        .append("text")
+        .text("Select Y: ");
+
+      d3
+        .select("#third")
+        .append("select")
+        .attr("id","selectY");
+
+      d3
+        .select("#selectY")
+        .selectAll('myOptions')
+        .data(["obey","reps_lower","reps_upper"])
+        .enter()
+        .append('option')
+        .text(function (d) { return d; }) // text showed in the menu
+        .attr("value", function (d) { return d; }) // corresponding value returned by the button
+
+      d3
+        .select("#third")
+        .append("text")
+        .text("Ymin: ");
+
+      d3
+        .select("#third")
+        .append("input")
+        .attr("type","number")
+        .attr("id","buttonYmin");
+
+      d3
+        .select("#third")
+        .append("text")
+        .text("Ymax: ");
+
+      d3
+        .select("#third")
+        .append("input")
+        .attr("type","number")
+        .attr("id","buttonYmax");
+
+              createScatterPlot();
+
+        function createScatterPlot(){
+
+      	  var ymin= 0;
+      	  var ymax= d3.max(data,function(d){return +d3.values(d)[yvar_i];});
+      	  var xmin= 0;
+      	  var xmax= d3.max(data,function(d){return +d3.values(d)[xvar_i];});
+
+          var color = d3.scaleOrdinal()
+            .domain(dogbreed)
+            .range(d3.schemeSet2);
+
+
+      	  default_xmin=xmin;
+      	  default_xmax=xmax;
+      	  default_ymin=ymin;
+      	  default_ymax=ymax;
+
+      	  d3.selectAll("g").remove();
+      	  sx=d3.scaleLinear().domain([xmin,xmax*1.2]).range([0,300]);
+      	  sy=d3.scaleLinear().domain([ymin,ymax*1.2]).range([300,0]);
+
+
+      	  scatterplot=d3.select("svg")
+      	  .append("g")
+      		.attr("transform","translate("+50+","+100+")")
+      	  .selectAll("circle")
+      	  .data(data)
+      	  .enter()
+      	  .append("circle")
+          .attr('fill', function(d){ return(color(d3.values(d)[5])) })
+      		.attr("cx",function(d,i){return sx(d3.values(d)[xvar_i]);})
+      		.attr("cy",function(d,i){return sy(d3.values(d)[yvar_i]);})
+      		.attr("r",function(){return 4;});
+
+          d3.select("svg")
+            .selectAll("rects")
+            .data(dogbreed)
+            .enter()
+            .append("rect")
+            .attr("x", 200)
+            .attr("height", 20)
+            .attr("y", (d,i)=> i*20+90)
+            .attr("width", 40)
+            .attr('fill', function(d){ return(color(d)) })
+            .attr("stroke", "gray");
+
+          d3.select("svg")
+            .selectAll("rects")
+            .data(dogbreed)
+            .enter()
+            .append('text')
+            .text(function(d){ return  d;})
+            .attr("x", 250)
+            .attr("y", (d,i)=> i*20+105)
+            .style("text-anchor", "right")
+            .style("font-size", 14);
+
+      		g_y=d3.select("svg")
+      		.append("g")
+      		.attr("transform","translate("+50+","+100+")")
+      		.call(d3.axisLeft(sy));
+
+      		g_x=d3.select("svg")
+      		.append("g")
+      		.attr("transform","translate("+50+","+400+")")
+      		.call(d3.axisBottom(sx));
+
+      	}
+
+
+      	// A function that update the plot for a given xlim value
+          function updateYmin() {
+
+      		// Get the value of the button
+      		ymin = this.value;
+      		default_ymin=ymin;
+
+      		// Update X axis
+      		sy.domain([ymin,default_ymax]);
+      		g_y.transition().duration(1000).call(d3.axisLeft(sy));
+
+      		// Update chart
+      		d3.selectAll("circle")
+      		   .data(data)
+      		   .transition()
+      		   .duration(1000)
+      		   .attr("cx", function (d) { return sx(d3.values(d)[xvar_i]); } )
+      		   .attr("cy", function (d) { return sy(d3.values(d)[yvar_i]); } )
+          }
+
+      	// A function that update the plot for a given xlim value
+          function updateYmax() {
+
+      		// Get the value of the button
+      		ymax = this.value;
+      		default_ymax=ymax;
+
+      		// Update X axis
+      		sy.domain([default_ymin,ymax]);
+      		g_y.transition().duration(1000).call(d3.axisLeft(sy));
+
+      		// Update chart
+      		d3.selectAll("circle")
+      		   .data(data)
+      		   .transition()
+      		   .duration(1000)
+      		   .attr("cx", function (d) { return sx(d3.values(d)[xvar_i]); } )
+      		   .attr("cy", function (d) { return sy(d3.values(d)[yvar_i]); } )
+          }
+
+
+      	function update_y() {
+
+      		var temp=d3.select("#selectY").node().value;
+      		yvar_i=allGroup.indexOf(temp, 0);
+
+      		createScatterPlot();
+
+          }
+
+          // Add an event listener to the button created in the html part
+          d3.select("#buttonYmin").on("input", updateYmin );
+          d3.select("#buttonYmax").on("input", updateYmax );
+
+          d3.select("#selectY").on("change", update_y);
+
+
+    })
 
   }
 
